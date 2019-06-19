@@ -132,6 +132,7 @@ Encoder::Encoder()
     m_prevTonemapPayload.payload = NULL;
     m_startPoint = 0;
     m_saveCTUSize = 0;
+    m_scenecutOnly = true;
 }
 inline char *strcatFilename(const char *input, const char *suffix)
 {
@@ -1250,6 +1251,9 @@ int Encoder::encode(const x265_picture* pic_in, x265_picture* pic_out)
     Frame* outFrame = NULL;
     Frame* frameEnc = NULL;
     int pass = 0;
+    if(m_scenecutOnly) {
+    	// Do nothing
+    } else {
     do
     {
         /* getEncodedPicture() should block until the FrameEncoder has completed
@@ -1628,13 +1632,18 @@ int Encoder::encode(const x265_picture* pic_in, x265_picture* pic_out)
                  calcRefreshInterval(frameEnc);
 
             /* Allow FrameEncoder::compressFrame() to start in the frame encoder thread */
-            if (!curEncoder->startCompressFrame(frameEnc))
-                m_aborted = true;
+            if(m_scenecutOnly) {
+            	// Do nothing
+            } else  {
+				if (!curEncoder->startCompressFrame(frameEnc))
+					m_aborted = true;
+            }
         }
         else if (m_encodedFrameNum)
             m_rateControl->setFinalFrameCount(m_encodedFrameNum);
     }
     while (m_bZeroLatency && ++pass < 2);
+}
 
     return ret;
 }

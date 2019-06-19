@@ -252,6 +252,7 @@ public:
     Lock                    m_dynamicRefineLock;
 
     bool                    m_saveCTUSize;
+    bool                    m_scenecutOnly; // RAM
 
     Encoder();
     ~Encoder()
